@@ -1,0 +1,57 @@
+request_type,api_name,link
+GET,"List of Allowed from Addresses",https://www.zoho.com/crm/developer/docs/api/v7/get-from-addresses-list.html
+POST,Send Mail,https://www.zoho.com/crm/developer/docs/api/v7/send-mail.html
+POST,Unblock Email,https://www.zoho.com/crm/developer/docs/api/v7/unblock-emails.html
+GET,Blueprint,https://www.zoho.com/crm/developer/docs/api/v7/blueprint-details.html
+PUT,Blueprint Details,https://www.zoho.com/crm/developer/docs/api/v7/update-blueprint.html
+POST,Notes,https://www.zoho.com/crm/developer/docs/api/v7/create-notes.html
+GET,Notes,https://www.zoho.com/crm/developer/docs/api/v7/get-notes.html
+PUT,Notes,https://www.zoho.com/crm/developer/docs/api/v7/update-notes.html
+DELETE,Notes,https://www.zoho.com/crm/developer/docs/api/v7/delete-notes.html
+,Overview,https://www.zoho.com/crm/developer/docs/api/v7/backup-overview.html
+POST,Schedule Data Backup,https://www.zoho.com/crm/developer/docs/api/v7/schedule-data-backup.html
+GET,Backup Details,https://www.zoho.com/crm/developer/docs/api/v7/get-backup-info.html
+GET,Data Backup History,https://www.zoho.com/crm/developer/docs/api/v7/backup-history.html
+GET,Backed up Data,https://www.zoho.com/crm/developer/docs/api/v7/download-backup.html
+GET,Data Backup Download URLs,https://www.zoho.com/crm/developer/docs/api/v7/get-backup-urls.html
+PUT,Cancel Scheduled Data Backup,https://www.zoho.com/crm/developer/docs/api/v7/cancel-backup.html
+,Overview,https://www.zoho.com/crm/developer/docs/api/v7/bulk-write/overview.html
+POST,Upload File,https://www.zoho.com/crm/developer/docs/api/v7/bulk-write/upload-file.html
+POST,Create Bulk Write Job,https://www.zoho.com/crm/developer/docs/api/v7/bulk-write/create-job.html
+GET,Job Details,https://www.zoho.com/crm/developer/docs/api/v7/bulk-write/job-details.html
+GET,Download Result,https://www.zoho.com/crm/developer/docs/api/v7/bulk-write/download-result.html
+,Limitations,https://www.zoho.com/crm/developer/docs/api/v7/bulk-write/limitations.html
+,Overview,https://www.zoho.com/crm/developer/docs/api/v7/bulk-read/overview.html
+POST,Create Bulk Read job,https://www.zoho.com/crm/developer/docs/api/v7/bulk-read/create-job.html
+GET,Status of the Bulk Read Job,https://www.zoho.com/crm/developer/docs/api/v7/bulk-read/job-details.html
+GET,Download Bulk Read Result,https://www.zoho.com/crm/developer/docs/api/v7/bulk-read/download-result.html
+,Limitations,https://www.zoho.com/crm/developer/docs/api/v7/bulk-read/limitations.html
+,Overview,https://www.zoho.com/crm/developer/docs/api/v7/composite-overview.html
+POST,Composite Request,https://www.zoho.com/crm/developer/docs/api/v7/composite-api.html
+,Overview,https://www.zoho.com/crm/developer/docs/api/v7/notifications/overview.html
+GET,Notification Details,https://www.zoho.com/crm/developer/docs/api/v7/notifications/get-details.html
+POST,Enable Notifications,https://www.zoho.com/crm/developer/docs/api/v7/notifications/enable.html
+PATCH,Update Specific Information of a Notification,https://www.zoho.com/crm/developer/docs/api/v7/notifications/update-info.html
+PUT,Details of a Notification,https://www.zoho.com/crm/developer/docs/api/v7/notifications/update-details.html
+DELETE,Disable Notifications,https://www.zoho.com/crm/developer/docs/api/v7/notifications/disable.html
+PATCH,Disable Specific Notifications,https://www.zoho.com/crm/developer/docs/api/v7/notifications/specific-disable.html
+,Overview,https://www.zoho.com/crm/developer/docs/api/v7/COQL-Overview.html
+POST,Records through a COQL Query,https://www.zoho.com/crm/developer/docs/api/v7/Get-Records-through-COQL-Query.html
+,JOINs in COQL,https://www.zoho.com/crm/developer/docs/api/v7/COQL-Joins.html
+,Subquery,https://www.zoho.com/crm/developer/docs/api/v7/COQL-subquery.html
+,Limitations,https://www.zoho.com/crm/developer/docs/api/v7/COQL-Limitations.html
+,Metadata APIs,https://www.zoho.com/crm/developer/docs/api/v7/module-meta.html
+,"Fetch the metadata of modules, fields, layouts, custom views, and related lists.",https://www.zoho.com/crm/developer/docs/api/v7/module-meta.html
+,Entity APIs,https://www.zoho.com/crm/developer/docs/api/v7/get-records.html
+,Perform CRUD operations on CRM module entities and integrate with any third party application through flexible RESTful endpoints.,https://www.zoho.com/crm/developer/docs/api/v7/get-records.html
+,Composite API,https://www.zoho.com/crm/developer/docs/api/v7/composite-overview.html
+,Combine up to five API calls in a single request through this API.,https://www.zoho.com/crm/developer/docs/api/v7/composite-overview.html
+,Bulk APIs,https://www.zoho.com/crm/developer/docs/api/v7/bulk-read/overview.html
+,Push and retrieve data from Zoho CRM in bulk using a set of asynchronous APIs.,https://www.zoho.com/crm/developer/docs/api/v7/bulk-read/overview.html
+,Notification APIs,https://www.zoho.com/crm/developer/docs/api/v7/notifications/overview.html
+,Get notified whenever a data change occurs inside your CRM.,https://www.zoho.com/crm/developer/docs/api/v7/notifications/overview.html
+,Query APIs,https://www.zoho.com/crm/developer/docs/api/v7/COQL-Overview.html
+,Fetch records using the SELECT query (SQL syntax) from Zoho CRM.,https://www.zoho.com/crm/developer/docs/api/v7/COQL-Overview.html
+,APIDirectory,https://www.zoho.com/crm/developer/docs/api-directory.html?source_from=qlink_
+,Postman Collection,https://www.postman.com/zohocrmdevelopers/workspace/zoho-crm-developers/overview?source_from=qlink_
+,Kaizen Series,https://www.zoho.com/crm/developer/docs/kaizen-series-directory.html?source_from=qlink_
