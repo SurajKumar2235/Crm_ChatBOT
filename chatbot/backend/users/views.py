@@ -75,8 +75,34 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import UserSerializer
 from django.core.cache import cache
 from django.contrib.auth import get_user_model
+from .models import UserLog  # Import the UserLog model
 
 User = get_user_model()  # Fetch user model efficiently
+
+
+def log_user_action(user, action, request):
+    """Helper function to log user actions"""
+    UserLog.objects.create(
+        user=user,
+        action=action,
+        ip_address=get_client_ip(request),
+        user_agent=request.headers.get("User-Agent"),
+    )
+
+    return "logging created"
+
+
+
+def get_client_ip(request):
+    """Get client IP address"""
+    x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(",")[0]
+    else:
+        ip = request.META.get("REMOTE_ADDR")
+    return ip
+
+
 
 class RegisterAPIView(APIView):
     serializer_class = UserSerializer
@@ -91,6 +117,7 @@ class RegisterAPIView(APIView):
             "email": user.email,
         }
         cache.set(f"user_auth_{user.email}", user_data, timeout=3600)
+        log_user_action(user, "register", request)
 
         return Response(user_data, status=status.HTTP_201_CREATED)
 
@@ -116,10 +143,12 @@ class LoginAPIView(APIView):
                 "access": str(refresh.access_token),
             }
             cache.set(f"user_auth_{email}", user_data, timeout=3600)
+            log_user_action(user, "login", request)
 
             return Response(user_data, status=status.HTTP_200_OK)
 
         return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+
 
 
 class LogoutAPIView(APIView):
@@ -129,10 +158,32 @@ class LogoutAPIView(APIView):
         try:
             refresh_token = request.data.get("refresh")
             if not refresh_token:
-                return Response({"error": "Refresh token is required"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {"error": "Refresh token is required"}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
-            RefreshToken(refresh_token).blacklist()
-            return Response({"message": "Logged out successfully"}, status=status.HTTP_204_NO_CONTENT)
+            # Try to blacklist the refresh token
+            try:
+                token = RefreshToken(refresh_token)
+                token.blacklist()
+            except Exception as e:
+                return Response(
+                    {"error": f"Invalid refresh token: {str(e)}"}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
-        except Exception:
-            return Response({"error": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST)
+            # Remove user cache on logout
+            email = request.user.email
+            cache.delete(f"user_auth_{email}")
+            log_user_action(request.user, "logout", request)
+
+            return Response(
+                {"message": "Logged out successfully"}, 
+                status=status.HTTP_200_OK
+            )
+        except Exception as e:
+            return Response(
+                {"error": f"Logout failed: {str(e)}"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )

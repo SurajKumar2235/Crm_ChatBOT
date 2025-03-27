@@ -43,20 +43,25 @@ class User(AbstractUser):
     def __str__(self):
         return self.name
     
-    
-class Userlogs(models.Model):
+
+
+from django.db import models
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+class UserLog(models.Model):
+    ACTIONS = [
+        ("register", "Register"),
+        ("login", "Login"),
+        ("logout", "Logout"),
+    ]
+
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    action = models.CharField(max_length=10, choices=ACTIONS)
     ip_address = models.GenericIPAddressField(null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    def __str__(self):
-        return self.user.name
-    
-    class Meta:
-        verbose_name = 'Userlog'
-        ordering = ['-created_at']
-        db_table = 'Userlogs'
-        # db_table_comment = 'Userlog table'
+    user_agent = models.TextField(null=True, blank=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.user.name
+        return f"{self.user.email} - {self.action} at {self.timestamp}"

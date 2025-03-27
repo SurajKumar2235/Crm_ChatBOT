@@ -1,0 +1,20 @@
+[2024-03-26] Fixed Docker configuration:
+- Removed invalid podman-compose command from Dockerfile
+- Added proper environment variables and system dependencies
+- Created docker-compose.yml for orchestrating backend and PostgreSQL services
+- Set up proper networking and volume management
+- Configured environment variables for database connection 
+
+[2024-03-27] Created comprehensive README.md for chatbot/backend/
+- Added project structure overview
+- Included setup instructions
+- Documented API endpoints and authentication
+- Added development guidelines
+- Included Docker configuration details 
+
+[2024-03-27] Fixed JWT token authentication issues:
+- Increased access token lifetime from 5 to 60 minutes
+- Improved token validation in logout view
+- Added better error handling and messages
+- Enabled last login update tracking
+- Fixed HTTP status codes for better API consistency 

@@ -177,4 +177,5 @@ cython_debug/
 *.env
 *.env.local
 ./env
->>>>>>> d4c2dd6 (Data Extracted)
+*/migrations/*.py
+*/migrations/*.pyc
