@@ -18,8 +18,23 @@ services:
     ports:
       - "5432:5432"  # Expose PostgreSQL on port 5432
 
+
+  redis:
+    image: redis:7
+    container_name: redis_server
+    restart: always
+    networks:
+      - mynetwork
+    labels:
+      io.podman.pod.name: django_pod
+    ports:
+      - "8082:6379"  # Redis default port
+    command: ["redis-server", "--appendonly", "yes"]  # Enable persistence
+    volumes:
+      - redis_data:/data
+
 volumes:
   postgres_data:
-
+  redis_data:
 networks:
   mynetwork:
