@@ -2,7 +2,7 @@ import os
 
 # Directory where Markdown files are stored
 MD_FOLDER = "."
-VERSION_HEADER = "Version 2Version 2.1Version 3Version 4Version 5Version 6Version 7Version 8"
+VERSION_HEADER ='''At Zoho, we do not use third-party software to track'''
 
 def clean_markdown_files():
     """Removes the first 413 lines from Markdown files only if they start with a specific version header."""
@@ -21,7 +21,7 @@ def clean_markdown_files():
         # Check if file starts with the version header
         if lines and lines[0].replace(" ", "").startswith(VERSION_HEADER.replace(" ", "")):  
             # Remove first 413 lines
-            cleaned_content = "".join(lines[76:]) if len(lines) > 413 else ""
+            cleaned_content = "".join(lines[489:]) if len(lines) > 413 else ""
 
             # Overwrite file with cleaned content
             with open(file_path, "w", encoding="utf-8") as f:
