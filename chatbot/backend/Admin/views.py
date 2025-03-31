@@ -1,16 +1,19 @@
 import os
 import markdown
 import chromadb
-from langchain.embeddings import OpenAIEmbeddings
-from langchain.vectorstores import Chroma
+import time
+from langchain_community.embeddings import OpenAIEmbeddings
+from langchain_community.vectorstores import Chroma
+from langchain_community.chat_models import ChatOpenAI
+from langchain.chains import RetrievalQA
+from langchain.prompts import PromptTemplate
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from dotenv import load_dotenv
-from langchain.chains import RetrievalQA
-from langchain.chat_models import ChatOpenAI
-from langchain.prompts import PromptTemplate
-
+from .models import ProcessedMarkdown
+import shutil
+from rest_framework.permissions import IsAuthenticated
 # Load environment variables
 load_dotenv()
 
@@ -27,30 +30,83 @@ MD_FOLDER = "api_docs/"
 
 
 class ProcessMarkdownAPIView(APIView):
+    permission_classes = [IsAuthenticated]  # Add this line
+
     def post(self, request):
         """Process and store Markdown files in ChromaDB"""
-        files = [f for f in os.listdir(MD_FOLDER) if f.endswith(".md")]
+        try:
+            # Get all markdown files from the directory
+            files = [f for f in os.listdir(MD_FOLDER) if f.endswith(".md")]
 
-        if not files:
-            return Response({"message": "No Markdown files found"}, status=status.HTTP_400_BAD_REQUEST)
+            if not files:
+                return Response(
+                    {"message": "No Markdown files found"}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
-        docs = []
-        for i, file in enumerate(files):
-            with open(os.path.join(MD_FOLDER, file), "r", encoding="utf-8") as f:
-                content = f.read()
-                docs.append({"text": content, "source": file})
+            processed_files = []
+            failed_files = []
 
-        # Store in ChromaDB
-        vector_store.add_texts(
-            texts=[doc["text"] for doc in docs],
-            metadatas=[{"source": doc["source"]} for doc in docs],
-            ids=[str(i) for i in range(len(docs))]  # Ensure unique IDs
-        )
+            for file in files:
+                try:
+                    file_path = os.path.join(MD_FOLDER, file)
+                    
+                    # Read the content
+                    with open(file_path, "r", encoding="utf-8") as f:
+                        content = f.read()
 
-        return Response({"message": f"{len(docs)} Markdown files processed and stored"}, status=status.HTTP_201_CREATED)
+                    # Generate a unique ID for ChromaDB
+                    vector_store_id = f"md_{file}_{int(time.time())}"
+
+                    # Store in ChromaDB
+                    vector_store.add_texts(
+                        texts=[content],
+                        metadatas=[{"source": file}],
+                        ids=[vector_store_id]
+                    )
+
+                    # Record in database
+                    ProcessedMarkdown.objects.create(
+                        file_name=file,
+                        status='SUCCESS',
+                        vector_store_id=vector_store_id
+                    )
+
+                    # Delete the processed file
+                    os.remove(file_path)
+                    processed_files.append(file)
+
+                except Exception as e:
+                    # Record failed processing
+                    ProcessedMarkdown.objects.create(
+                        file_name=file,
+                        status='FAILED',
+                        error_message=str(e)
+                    )
+                    failed_files.append(file)
+
+            response_data = {
+                "message": f"Processing completed",
+                "processed_files": processed_files,
+                "failed_files": failed_files,
+                "total_processed": len(processed_files),
+                "total_failed": len(failed_files)
+            }
+
+            if failed_files:
+                return Response(response_data, status=status.HTTP_207_MULTI_STATUS)
+            return Response(response_data, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            return Response(
+                {"error": f"Processing failed: {str(e)}"}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 class QueryMarkdownAPIView(APIView):
+    permission_classes = [IsAuthenticated]  # Add this line
+
     def post(self, request):
         """Query the stored Markdown files and get an answer from LLM"""
         query = request.data.get("query", "")
@@ -58,7 +114,7 @@ class QueryMarkdownAPIView(APIView):
         if not query:
             return Response({"error": "Query is required"}, status=status.HTTP_400_BAD_REQUEST)
 
-        retriever = vector_store.as_retriever(search_type="similarity", search_kwargs={"k": 3})  # Retrieve top 3 matches
+        retriever = vector_store.as_retriever(search_type="similarity", search_kwargs={"k": 5})  # Retrieve top 3 matches
 
         # Define Prompt
         template = """Use the following Markdown-based documentation to answer the query.
@@ -89,12 +145,14 @@ class QueryMarkdownAPIView(APIView):
 
 
 class ListStoredFilesAPIView(APIView):
+    permission_classes = [IsAuthenticated]  # Add this line
+
     def get(self, request):
         """Retrieve all stored files in ChromaDB"""
         try:
             collection = chroma_client.get_collection("markdown_vectors")
             stored_metadata = collection.get()["metadatas"]
-            print(collection.get())
+            # print(collection.get())
             if not stored_metadata:
                 return Response({"message": "No files found in ChromaDB"}, status=status.HTTP_404_NOT_FOUND)
 

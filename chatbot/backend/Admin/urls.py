@@ -4,6 +4,6 @@ from .views import ProcessMarkdownAPIView, QueryMarkdownAPIView, ListStoredFiles
 urlpatterns = [
     path("process-md/", ProcessMarkdownAPIView.as_view(), name="process-md"),
     path("query-md/", QueryMarkdownAPIView.as_view(), name="query-md"),
-        path("stored-files/", ListStoredFilesAPIView.as_view(), name="stored-files"),
+    path("stored-files/", ListStoredFilesAPIView.as_view(), name="stored-files"),
 
 ]

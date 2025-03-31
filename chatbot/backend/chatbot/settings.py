@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-hf4*sdk3cp7gn5&kz+-k6v9*4x8$a6z-@(1h#c@p3vd+fso9ql
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.16.220','127.0.0.1','192.168.69.220']
+ALLOWED_HOSTS = ['192.168.69.220','127.0.0.1','192.168.69.220']
 
 
 # Application definition
@@ -53,6 +53,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+        'Admin.middleware.AdminAuthenticationMiddleware',
+
 ]
 
 ROOT_URLCONF = 'chatbot.urls'
@@ -136,12 +138,13 @@ REST_FRAMEWORK = {
     ],
 }
 REST_FRAMEWORK = {
-    
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-    
+    'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
-    
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
 }
 
 
