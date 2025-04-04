@@ -1,5 +1,4 @@
 import os
-import markdown
 import chromadb
 import time
 from langchain_community.embeddings import OpenAIEmbeddings
@@ -12,8 +11,6 @@ from rest_framework.response import Response
 from rest_framework import status
 from dotenv import load_dotenv
 from .models import ProcessedMarkdown
-import shutil
-from rest_framework.permissions import IsAuthenticated
 # Load environment variables
 load_dotenv()
 
@@ -30,7 +27,6 @@ MD_FOLDER = "api_docs/"
 
 
 class ProcessMarkdownAPIView(APIView):
-    permission_classes = [IsAuthenticated]  # Add this line
 
     def post(self, request):
         """Process and store Markdown files in ChromaDB"""
@@ -40,7 +36,7 @@ class ProcessMarkdownAPIView(APIView):
 
             if not files:
                 return Response(
-                    {"message": "No Markdown files found"}, 
+                    {"message": "No Markdown files found"},
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
@@ -50,7 +46,7 @@ class ProcessMarkdownAPIView(APIView):
             for file in files:
                 try:
                     file_path = os.path.join(MD_FOLDER, file)
-                    
+
                     # Read the content
                     with open(file_path, "r", encoding="utf-8") as f:
                         content = f.read()
@@ -99,13 +95,12 @@ class ProcessMarkdownAPIView(APIView):
 
         except Exception as e:
             return Response(
-                {"error": f"Processing failed: {str(e)}"}, 
+                {"error": f"Processing failed: {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
 
 class QueryMarkdownAPIView(APIView):
-    permission_classes = [IsAuthenticated]  # Add this line
 
     def post(self, request):
         """Query the stored Markdown files and get an answer from LLM"""
@@ -145,7 +140,6 @@ class QueryMarkdownAPIView(APIView):
 
 
 class ListStoredFilesAPIView(APIView):
-    permission_classes = [IsAuthenticated]  # Add this line
 
     def get(self, request):
         """Retrieve all stored files in ChromaDB"""

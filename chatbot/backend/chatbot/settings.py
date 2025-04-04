@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-hf4*sdk3cp7gn5&kz+-k6v9*4x8$a6z-@(1h#c@p3vd+fso9ql
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.69.220','127.0.0.1','192.168.69.220']
+ALLOWED_HOSTS = ['192.168.69.220','127.0.0.1','192.168.69.220','*']
 
 
 # Application definition
@@ -39,13 +39,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
-
+    'corsheaders',
     'users',
     'Admin',
 
 ]
 
 MIDDLEWARE = [
+      'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -53,7 +54,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-        'Admin.middleware.AdminAuthenticationMiddleware',
+        # 'Admin.middleware.AdminAuthenticationMiddleware',
 
 ]
 
@@ -135,15 +136,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ],
-}
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
+        'Admin.permissions.IsAuthenticatedForAdmin',
     ],
 }
 
@@ -189,7 +185,22 @@ CACHES = {
         'LOCATION': 'redis://127.0.0.1:8082/1',  # Change based on your Redis setup
         'OPTIONS': {
             # 'parser_class': 'django_redis.client.DefaultClient',
-              'db': 1, 
+              'db': 1,
         }
     }
 }
+
+
+# CORS_ALLOW_ALL_ORIGINS = True
+
+# Or restrict to your frontend domain
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://192.168.54.220:3000"
+]
+
+CSRF_TRUSTED_ORIGINS = ["http://localhost:3000","http://192.168.54.220:3000"]
+
+
+CORS_ALLOW_CREDENTIALS = True

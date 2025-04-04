@@ -76,7 +76,8 @@ from .serializers import UserSerializer
 from django.core.cache import cache
 from django.contrib.auth import get_user_model
 from .models import UserLog  # Import the UserLog model
-
+from django.contrib.auth import authenticate
+from django.middleware import csrf
 User = get_user_model()  # Fetch user model efficiently
 
 
@@ -103,67 +104,107 @@ def get_client_ip(request):
     return ip
 
 
+from rest_framework.exceptions import ValidationError
 
 class RegisterAPIView(APIView):
     serializer_class = UserSerializer
 
     def post(self, request):
-        serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
+        try:
+            serializer = self.serializer_class(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            user = serializer.save()
 
-        user_data = {
-            "id": user.id,
-            "email": user.email,
-        }
-        cache.set(f"user_auth_{user.email}", user_data, timeout=3600)
-        log_user_action(user, "register", request)
+            user_data = {
+                "id": user.id,
+                "email": user.email,
+            }
+            cache.set(f"user_auth_{user.email}", user_data, timeout=3600)
+            log_user_action(user, "register", request)
 
-        return Response(user_data, status=status.HTTP_201_CREATED)
+            return Response(user_data, status=status.HTTP_201_CREATED)
+
+        except ValidationError as e:
+            return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import get_user_model
+from django.core.cache import cache
+
+User = get_user_model()
 
 class LoginAPIView(APIView):
-    serializer_class = UserSerializer
-
     def post(self, request):
         email = request.data.get('email')
         password = request.data.get('password')
 
-        cached_user = cache.get(f"user_auth_{email}")
-
-        if cached_user:
-            return Response(cached_user, status=status.HTTP_200_OK)
-
-        user = User.objects.filter(email=email).only("id", "email").first()
+        user = User.objects.filter(email=email).first()
         if user and user.check_password(password):
             refresh = RefreshToken.for_user(user)
+            access_token = str(refresh.access_token)
+            refresh_token = str(refresh)
+
             user_data = {
                 "id": user.id,
                 "email": user.email,
-                "refresh": str(refresh),
-                "access": str(refresh.access_token),
             }
+
+            # Cache user session
             cache.set(f"user_auth_{email}", user_data, timeout=3600)
+
+            # Log user login
             log_user_action(user, "login", request)
 
-            return Response(user_data, status=status.HTTP_200_OK)
+            # Build response
+            response = Response(user_data, status=status.HTTP_200_OK)
+
+            # Set tokens as HttpOnly cookies
+            response.set_cookie(
+                key='access_token',
+                value=access_token,
+                httponly=True,
+                secure=True,  # set False if using http during dev
+                samesite='Lax',
+                max_age=3600,
+                path='/'
+            )
+            response.set_cookie(
+                key='refresh_token',
+                value=refresh_token,
+                httponly=True,
+                secure=True,
+                samesite='Lax',
+                max_age=7 * 24 * 60 * 60,  # 7 days
+                path='/'
+            )
+
+            return response
 
         return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.core.cache import cache
 
 class LogoutAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
         try:
-            refresh_token = request.data.get("refresh")
+            refresh_token = request.COOKIES.get("refresh_token")
             if not refresh_token:
                 return Response(
-                    {"error": "Refresh token is required"}, 
+                    {"error": "Refresh token is missing from cookies"}, 
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-            # Try to blacklist the refresh token
             try:
                 token = RefreshToken(refresh_token)
                 token.blacklist()
@@ -173,17 +214,37 @@ class LogoutAPIView(APIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-            # Remove user cache on logout
+            # Delete user session cache
             email = request.user.email
             cache.delete(f"user_auth_{email}")
             log_user_action(request.user, "logout", request)
 
-            return Response(
+            # Clear cookies
+            response = Response(
                 {"message": "Logged out successfully"}, 
                 status=status.HTTP_200_OK
             )
+            response.delete_cookie("access_token")
+            response.delete_cookie("refresh_token")
+
+            return response
+
         except Exception as e:
             return Response(
                 {"error": f"Logout failed: {str(e)}"}, 
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+
+class UserProfileAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        print("=====================")
+        user = request.user
+        user_data = {
+            "id": user.id,
+            "email": user.email,
+            "name": user.name,
+        }
+        return Response(user_data, status=status.HTTP_200_OK)
