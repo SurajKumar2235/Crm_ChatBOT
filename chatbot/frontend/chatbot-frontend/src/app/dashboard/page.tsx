@@ -2,48 +2,61 @@
 import { useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import Navbar from '../components/Navbar';
+import ChatInterface from '../components/ChatInterface';
 
 export default function Dashboard() {
-  const { isAuthenticated, userData } = useAuth();
+  const { isAuthenticated } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
     // Redirect to login if not authenticated
     if (!isAuthenticated) {
-      router.push('/');
+      router.push('/login');
       return;
     }
   }, [isAuthenticated, router]);
 
   return (
-    <div className="min-h-screen">
-      <nav className="auth-card shadow-sm mb-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <h1 className="text-xl font-semibold">Chatbot Dashboard</h1>
-            </div>
-            <div className="flex items-center">
-              <span className="mr-4 font-medium">Welcome, {userData?.name || userData?.email || 'User'}</span>
-              <Link
-                href="/logout"
-                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors duration-200"
-              >
-                Logout
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+    <div className="page-container">
+      <Navbar />
 
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
-          <div className="auth-card rounded-lg h-96 p-6 flex items-center justify-center">
-            <p className="text-xl font-medium">Dashboard content will go here</p>
+      <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Column - Stats */}
+          <div className="lg:col-span-1 space-y-6">
+            <div className="stat bg-base-200 shadow rounded-lg">
+              <div className="stat-title">Total Queries</div>
+              <div className="stat-value text-primary">24</div>
+              <div className="stat-desc">↗︎ 14% from last month</div>
+            </div>
+
+            <div className="stat bg-base-200 shadow rounded-lg">
+              <div className="stat-title">Response Time</div>
+              <div className="stat-value text-secondary">2.4s</div>
+              <div className="stat-desc">↘︎ 0.5s from last week</div>
+            </div>
+
+            <div className="stat bg-base-200 shadow rounded-lg">
+              <div className="stat-title">Accuracy</div>
+              <div className="stat-value text-accent">92%</div>
+              <div className="stat-desc">↗︎ 3% from last month</div>
+            </div>
+          </div>
+
+          {/* Right Column - Chat Interface */}
+          <div className="lg:col-span-2">
+            <div className="card bg-base-100 shadow-xl h-full">
+              <div className="card-body p-0">
+                <ChatInterface />
+              </div>
+            </div>
           </div>
         </div>
-      </main>
+      </div>
     </div>
+
   );
 }

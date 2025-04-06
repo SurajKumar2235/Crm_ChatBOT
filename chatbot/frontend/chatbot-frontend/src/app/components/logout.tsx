@@ -2,7 +2,7 @@
 import { useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useRouter } from 'next/navigation';
-import { API_ENDPOINTS } from '../config';
+import { API_ENDPOINTS } from '../config/index';
 
 const LogoutComponent = () => {
   const { logout } = useAuth();
@@ -32,10 +32,17 @@ const LogoutComponent = () => {
   }, [logout, router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="max-w-md w-full p-8 auth-card text-center">
-        <h2 className="text-xl font-medium">Logging out...</h2>
-        <p className="mt-2">Please wait while we log you out.</p>
+    <div className="hero min-h-screen">
+      <div className="hero-content text-center">
+        <div className="card bg-base-200 shadow-xl">
+          <div className="card-body">
+            <h2 className="card-title text-xl justify-center">Logging out...</h2>
+            <div className="flex justify-center mt-4">
+              <span className="loading loading-spinner loading-lg text-primary"></span>
+            </div>
+            <p className="mt-4">Please wait while we log you out.</p>
+          </div>
+        </div>
       </div>
     </div>
   );

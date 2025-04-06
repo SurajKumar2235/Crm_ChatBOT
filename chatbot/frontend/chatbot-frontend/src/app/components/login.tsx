@@ -2,8 +2,8 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useRouter } from 'next/navigation';
-import { API_ENDPOINTS } from '../config';
-import Link from 'next/link';
+// import { API_CONFIG } from '../api';
+import { API_ENDPOINTS } from '../config/index';
 
 const LoginComponent = () => {
   const [email, setEmail] = useState('');
@@ -19,10 +19,8 @@ const LoginComponent = () => {
     try {
       const response = await fetch(API_ENDPOINTS.LOGIN, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include', // Required to send cookies
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ email, password }),
       });
 
@@ -32,16 +30,35 @@ const LoginComponent = () => {
         throw new Error(data.error || 'Login failed');
       }
 
+      console.log('Login response data:', data);
+
+      // Extract token from response - try multiple possible field names
+      const token = data.access || data.token || data.access_token;
+
+      // Log token information for debugging
+      if (!token) {
+        console.warn('No token found in login response. Using cookie-based auth.');
+      } else {
+        console.log('Token found:',
+          typeof token === 'string' && token.length > 10 ?
+            token.substring(0, 10) + '...' :
+            token
+        );
+      }
+
       // Extract user data from response
+      // If id/email not in response, it might be because we're using cookie auth
+      // and the backend doesn't return user details directly
       const userData = {
-        id: data.id,
-        email: data.email,
-        name: data.name || data.email?.split('@')[0] || 'User'
+        id: data.id || 0,
+        email: data.email || email, // Fall back to the email from the form
+        name: data.name || email?.split('@')[0] || 'User'
       };
 
-      // Since tokens are stored in HttpOnly cookies, we don't need to extract them from the response
-      // Just pass the user data to the login function
-      login('cookie-auth', userData);
+      console.log('Extracted user data:', userData);
+
+      // Pass token and user data to the login function
+      login(token || 'cookie-auth', userData);
       router.push('/dashboard');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
@@ -49,18 +66,18 @@ const LoginComponent = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="max-w-md w-full space-y-6 p-8 auth-card">
-        <h2 className="text-3xl font-bold text-center">Sign in</h2>
+    <div className="card bg-base-200 shadow-xl w-full">
+      <div className="card-body">
+        <h2 className="card-title text-2xl font-bold justify-center">Sign in</h2>
         {error && (
           <div className="error-message">
             {error}
           </div>
         )}
-        <form onSubmit={handleSubmit} className="mt-6 space-y-6">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium mb-1">
-              Email
+        <form onSubmit={handleSubmit} className="form-control gap-4">
+          <div className="form-control">
+            <label htmlFor="email" className="label">
+              <span className="label-text">Email</span>
             </label>
             <input
               id="email"
@@ -68,12 +85,13 @@ const LoginComponent = () => {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full rounded-md border p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="input input-bordered w-full"
+              placeholder="your.email@example.com"
             />
           </div>
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium mb-1">
-              Password
+          <div className="form-control">
+            <label htmlFor="password" className="label">
+              <span className="label-text">Password</span>
             </label>
             <input
               id="password"
@@ -81,24 +99,19 @@ const LoginComponent = () => {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full rounded-md border p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="input input-bordered w-full"
+              placeholder="••••••••"
             />
           </div>
-          <button
-            type="submit"
-            className="w-full py-2 px-4 btn-primary rounded-md transition-colors duration-200"
-          >
-            Sign in
-          </button>
+          <div className="form-control mt-4">
+            <button
+              type="submit"
+              className="btn btn-primary"
+            >
+              Sign in
+            </button>
+          </div>
         </form>
-        <div className="text-center mt-4">
-        <p>
-          Don&apos;t have an account?{' '}
-          <Link href="/register" className="text-blue-600 hover:underline">
-            Register here
-          </Link>
-        </p>
-      </div>
       </div>
     </div>
   );
