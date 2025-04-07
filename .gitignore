@@ -183,3 +183,5 @@ cython_debug/
 
 api_docs/*.md
 ./api_docs1/*.md
+
+/node_modules/*
