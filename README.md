@@ -30,12 +30,14 @@ First, start the backend services using Docker/Podman:
 ```bash
 # Navigate to the backend directory
 cd chatbot/backend
+# create .env file
+OPENAI_API_KEY=your_openai_api_key
 
 # Start the services using Docker
-docker compose up
+docker-compose up -d
 
 # OR if you're using Podman
-podman compose up
+podman-compose up -d
 ```
 
 Once the Docker/Podman services are running, start the Django development server:
