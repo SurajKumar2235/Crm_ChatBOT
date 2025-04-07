@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { API_ENDPOINTS } from '../config';
+import { API_ENDPOINTS } from '../config/index';
 // Uncomment the next line if you want to auto-login after registration
 // import { useAuth } from '../context/AuthContext';
 
@@ -57,18 +57,18 @@ const RegisterComponent = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="max-w-md w-full space-y-6 p-8 auth-card">
-        <h2 className="text-3xl font-bold text-center">Register</h2>
+    <div className="card bg-base-200 shadow-xl w-full">
+      <div className="card-body">
+        <h2 className="card-title text-2xl font-bold justify-center">Register</h2>
         {error && (
           <div className="error-message">
             {error}
           </div>
         )}
-        <form onSubmit={handleSubmit} className="mt-6 space-y-6">
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium mb-1">
-              Name
+        <form onSubmit={handleSubmit} className="form-control gap-4">
+          <div className="form-control">
+            <label htmlFor="name" className="label">
+              <span className="label-text">Name</span>
             </label>
             <input
               id="name"
@@ -76,12 +76,13 @@ const RegisterComponent = () => {
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="mt-1 block w-full rounded-md border p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="input input-bordered w-full"
+              placeholder="Your name"
             />
           </div>
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium mb-1">
-              Email
+          <div className="form-control">
+            <label htmlFor="email" className="label">
+              <span className="label-text">Email</span>
             </label>
             <input
               id="email"
@@ -89,12 +90,13 @@ const RegisterComponent = () => {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full rounded-md border p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="input input-bordered w-full"
+              placeholder="your.email@example.com"
             />
           </div>
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium mb-1">
-              Password
+          <div className="form-control">
+            <label htmlFor="password" className="label">
+              <span className="label-text">Password</span>
             </label>
             <input
               id="password"
@@ -102,12 +104,13 @@ const RegisterComponent = () => {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full rounded-md border p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="input input-bordered w-full"
+              placeholder="••••••••"
             />
           </div>
-          <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium mb-1">
-              Confirm Password
+          <div className="form-control">
+            <label htmlFor="confirmPassword" className="label">
+              <span className="label-text">Confirm Password</span>
             </label>
             <input
               id="confirmPassword"
@@ -115,15 +118,18 @@ const RegisterComponent = () => {
               required
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="mt-1 block w-full rounded-md border p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="input input-bordered w-full"
+              placeholder="••••••••"
             />
           </div>
-          <button
-            type="submit"
-            className="w-full py-2 px-4 btn-primary rounded-md transition-colors duration-200"
-          >
-            Register
-          </button>
+          <div className="form-control mt-4">
+            <button
+              type="submit"
+              className="btn btn-primary"
+            >
+              Register
+            </button>
+          </div>
         </form>
       </div>
     </div>

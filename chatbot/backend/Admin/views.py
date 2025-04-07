@@ -105,15 +105,14 @@ class QueryMarkdownAPIView(APIView):
     def post(self, request):
         """Query the stored Markdown files and get an answer from LLM"""
         query = request.data.get("query", "")
-
         if not query:
             return Response({"error": "Query is required"}, status=status.HTTP_400_BAD_REQUEST)
 
-        retriever = vector_store.as_retriever(search_type="similarity", search_kwargs={"k": 5})  # Retrieve top 3 matches
+        retriever = vector_store.as_retriever(search_type="similarity", search_kwargs={"k":8})  # Retrieve top 3 matches
+        print(retriever)
 
         # Define Prompt
-        template = """Use the following Markdown-based documentation to answer the query.
-        If the answer is not in the provided content, just say "I don't know."
+        template = """Use the following Markdown-based documentation to answer the query."
 
         Context: {context}
 
@@ -124,7 +123,7 @@ class QueryMarkdownAPIView(APIView):
 
         qa_chain = RetrievalQA.from_chain_type(
             llm=ChatOpenAI(
-                model="gpt-4o-mini",  # Updated to use gpt-4o-mini
+                model="gpt-4o",  # Updated to use gpt-4o-mini
                 temperature=0.5,
                 openai_api_key=os.getenv("OPENAI_API_KEY"),
             ),
@@ -134,6 +133,7 @@ class QueryMarkdownAPIView(APIView):
         )
 
         response = qa_chain.run(query)
+        print(response)
         return Response({"answer": response}, status=status.HTTP_200_OK)
 
 

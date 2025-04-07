@@ -150,6 +150,8 @@ class LoginAPIView(APIView):
             user_data = {
                 "id": user.id,
                 "email": user.email,
+                "access": access_token,  # Include token in response body
+                "refresh": refresh_token  # Include refresh token in response body
             }
 
             # Cache user session
@@ -184,8 +186,6 @@ class LoginAPIView(APIView):
             return response
 
         return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-
-
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status

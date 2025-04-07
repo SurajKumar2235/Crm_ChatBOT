@@ -5,4 +5,5 @@ export const API_ENDPOINTS = {
   REGISTER: `${API_BASE_URL}/api/users/register/`,
   LOGOUT: `${API_BASE_URL}/api/users/logout/`,
   USER_PROFILE: `${API_BASE_URL}/api/users/me/`,
+  QUERY: `${API_BASE_URL}/api/admin/query-md/`,
 };

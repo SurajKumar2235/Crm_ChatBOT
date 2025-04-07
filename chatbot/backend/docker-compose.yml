@@ -32,6 +32,16 @@ services:
     command: ["redis-server", "--appendonly", "yes"]  # Enable persistence
     volumes:
       - redis_data:/data
+  kafka:
+    image: bitnami/kafka:3.5.1
+    container_name: kafka_server
+    restart: always
+    networks:
+      - mynetwork
+    labels:
+      io.podman.pod.name: django_pod
+    ports:
+      - "9092:9092"  # Kafka default port
 
 volumes:
   postgres_data:
