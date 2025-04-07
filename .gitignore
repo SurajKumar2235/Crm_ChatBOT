@@ -179,3 +179,7 @@ cython_debug/
 ./env
 */migrations/*.py
 */migrations/*.pyc
+
+
+api_docs/*.md
+./api_docs1/*.md
