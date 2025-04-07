@@ -194,15 +194,13 @@ This document outlines the 5-phase development plan for the Zoho CRM Chatbot pro
 
 The project will be considered successful when:
 
-1. The system successfully scrapes and structures Zoho CRM documentation
+1. The system successfully scrapes and structures any link in future for the documentation
 2. Vector database efficiently retrieves relevant information
 3. Users can register, login, and manage their profiles
 4. The chatbot accurately answers questions about Zoho CRM
 5. User history is properly tracked and displayed using Kafka
 6. The system is protected against DDoS attacks
-7. The UI is responsive and works on both desktop and mobile
-8. Response time is under 2 seconds for typical queries
-9. The system is securely deployed and publicly accessible
+7. The system is securely deployed and publicly accessible
 
 ## Future Enhancements (Post-Launch)
 
