@@ -108,7 +108,7 @@ class QueryMarkdownAPIView(APIView):
         if not query:
             return Response({"error": "Query is required"}, status=status.HTTP_400_BAD_REQUEST)
 
-        retriever = vector_store.as_retriever(search_type="similarity", search_kwargs={"k":8})  # Retrieve top 3 matches
+        retriever = vector_store.as_retriever(search_type="similarity", search_kwargs={"k":3})  # Retrieve top 3 matches
         print(retriever)
 
         # Define Prompt
