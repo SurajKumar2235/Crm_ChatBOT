@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
-
+import uuid
 class UserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:
@@ -19,7 +19,9 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractUser):
-    username = None  # Remove username, since email is unique
+    # username = None  # Remove username, since email is unique
+    id=models.UUIDField(primary_key=True, editable=False, unique=True,auto_created=True, default=uuid.uuid1)
+
     name = models.CharField(max_length=255)
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=255)
@@ -31,9 +33,8 @@ class User(AbstractUser):
     is_superuser = models.BooleanField(default=False)
 
     objects = UserManager()  # Use custom manager
-
     USERNAME_FIELD = "email"  # Use email instead of username
-    REQUIRED_FIELDS = ["name"]
+    REQUIRED_FIELDS = ["name","password"]
 
     class Meta:
         verbose_name = "User"

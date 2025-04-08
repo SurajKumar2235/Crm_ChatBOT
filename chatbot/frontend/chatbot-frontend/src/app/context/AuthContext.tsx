@@ -66,6 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           console.error('Auth validation error response:', errorData);
           errorMessage = errorData.detail || errorData.message || errorMessage;
         } catch (e) {
+          console.log(e);
           console.error('Non-JSON auth error response:', response.statusText);
           errorMessage = `Error ${response.status}: ${response.statusText}`;
         }
