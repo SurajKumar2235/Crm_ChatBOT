@@ -79,8 +79,9 @@ const ChatInterface = () => {
           const errorData = await response.json();
           console.error("API error:", errorData);
           errorMessage = errorData.detail || errorData.message || errorMessage;
-        } catch (_) {
+        } catch (e) {
           // If the response is not JSON, use the status text
+          console.log(e);
           console.error("Non-JSON error response:", response.statusText);
           errorMessage = `Error ${response.status}: ${response.statusText}`;
         }
