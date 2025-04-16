@@ -48,6 +48,9 @@ class User(AbstractUser):
 
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
+import uuid
 
 User = get_user_model()
 
@@ -63,6 +66,49 @@ class UserLog(models.Model):
     ip_address = models.GenericIPAddressField(null=True, blank=True)
     user_agent = models.TextField(null=True, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.email} - {self.action} at {self.timestamp}"
+
+
+class ClerkUser(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    clerk_id = models.CharField(max_length=255, unique=True)
+    email = models.EmailField(unique=True)
+    name = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        db_table = "clerk_users"
+
+    def __str__(self):
+        return self.email
+
+class UserActivity(models.Model):
+    ACTION_CHOICES = (
+        ('login', 'Login'),
+        ('logout', 'Logout'),
+        ('signup', 'Sign Up'),
+        ('password_reset', 'Password Reset'),
+    )
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(ClerkUser, on_delete=models.CASCADE)
+    action = models.CharField(max_length=20, choices=ACTION_CHOICES)
+    ip_address = models.GenericIPAddressField()
+    user_agent = models.TextField(null=True, blank=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    
+    # Generic Foreign Key fields
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True)
+    object_id = models.UUIDField(null=True)
+    content_object = GenericForeignKey('content_type', 'object_id')
+
+    class Meta:
+        db_table = "user_activities"
+        ordering = ['-timestamp']
 
     def __str__(self):
         return f"{self.user.email} - {self.action} at {self.timestamp}"

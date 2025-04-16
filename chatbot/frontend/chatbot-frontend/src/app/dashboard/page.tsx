@@ -26,26 +26,7 @@ export default function Dashboard() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column - Stats */}
-          <div className="lg:col-span-1 space-y-6">
-            <div className="stat bg-base-200 shadow rounded-lg">
-              <div className="stat-title">Total Queries</div>
-              <div className="stat-value text-primary">24</div>
-              <div className="stat-desc">↗︎ 14% from last month</div>
-            </div>
-
-            <div className="stat bg-base-200 shadow rounded-lg">
-              <div className="stat-title">Response Time</div>
-              <div className="stat-value text-secondary">2.4s</div>
-              <div className="stat-desc">↘︎ 0.5s from last week</div>
-            </div>
-
-            <div className="stat bg-base-200 shadow rounded-lg">
-              <div className="stat-title">Accuracy</div>
-              <div className="stat-value text-accent">92%</div>
-              <div className="stat-desc">↗︎ 3% from last month</div>
-            </div>
-          </div>
-
+          
           {/* Right Column - Chat Interface */}
           <div className="lg:col-span-2">
             <div className="card bg-base-100 shadow-xl h-full">

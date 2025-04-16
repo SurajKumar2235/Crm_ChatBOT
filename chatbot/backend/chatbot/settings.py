@@ -9,9 +9,9 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-
+from dotenv import load_dotenv
 from pathlib import Path
-
+load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -21,6 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-hf4*sdk3cp7gn5&kz+-k6v9*4x8$a6z-@(1h#c@p3vd+fso9ql'
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -55,6 +56,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
         # 'Admin.middleware.AdminAuthenticationMiddleware',
+            'users.middleware.ClerkAuthenticationMiddleware',
+
 
 ]
 
@@ -204,3 +207,5 @@ CSRF_TRUSTED_ORIGINS = ["http://localhost:3000","http://192.168.54.220:3000"]
 
 
 CORS_ALLOW_CREDENTIALS = True
+CLERK_SECRET_KEY = load_dotenv('CLERK_SECRET_KEY')
+CLERK_PUBLIC_KEY = load_dotenv('CLERK_PUBLIC_KEY')
