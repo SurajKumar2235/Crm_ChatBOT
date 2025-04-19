@@ -19,8 +19,15 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractUser):
+    REGISTRATION_CHOICES = (
+    ('email', 'Email'),
+    ('google', 'Google'),
+    ('github', 'GitHub'),
+    # ('clerk', 'Clerk'),
+    )
     # username = None  # Remove username, since email is unique
     id=models.UUIDField(primary_key=True, editable=False, unique=True,auto_created=True, default=uuid.uuid1)
+    registration_type = models.CharField(max_length=10, choices=REGISTRATION_CHOICES, default='email')  # NEW
 
     name = models.CharField(max_length=255)
     email = models.EmailField(unique=True)

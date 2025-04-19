@@ -1,72 +1,3 @@
-# from rest_framework.views import APIView
-# from rest_framework.response import Response
-# from rest_framework import status
-# from rest_framework.permissions import IsAuthenticated
-# from rest_framework_simplejwt.tokens import RefreshToken
-# from .serializers import UserSerializer,MyTokenObtainPairSerializer
-# from django.core.cache import cache
-
-# from django.contrib.auth import authenticate
-# # Create your views here.
-
-# class RegisterAPIView(APIView):
-#     serializer_class = UserSerializer
-
-#     def post(self, request):
-#         serializer = self.serializer_class(data=request.data)
-#         serializer.is_valid(raise_exception=True)
-#         serializer.save()
-#         cache.set(f"user_auth_{serializer.data['email']}", serializer.data, timeout=3600)
-
-#         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    
-# class LoginAPIView(APIView):
-#     serializer_class = UserSerializer
-
-#     def post(self, request):
-#         email = request.data.get('email')
-#         password = request.data.get('password')
-
-#         cached_user = None  # Initialize cached_user to avoid UnboundLocalError
-#         if cached_user:
-#             print("=====================")
-#             return Response(cached_user, status=status.HTTP_200_OK)
-
-#         user = authenticate(email=email, password=password)
-
-#         if user:
-#             refresh = RefreshToken.for_user(user)
-#             user_data = {
-#                 'email': user.email,
-#                 'refresh': str(refresh),
-#                 'access': str(refresh.access_token),
-#             }
-#             cache.set(f"user_auth_{email}", user_data, timeout=3600)
-
-#             return Response({
-#                 'refresh': str(refresh),
-#                 'access': str(refresh.access_token),
-#             })
-        
-#         else:
-#             return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-
-
-# class LogoutAPIView(APIView):
-#     serializer_class = UserSerializer
-#     permission_classes = [IsAuthenticated]
-#     def post(self, request):
-#         try:
-#             refresh_token = request.data.get("refresh")
-#             if not refresh_token:
-#                 return Response({"error": "Refresh token is required"}, status=status.HTTP_400_BAD_REQUEST)
-
-#             token = RefreshToken(refresh_token)
-#             token.blacklist()  # Blacklist the refresh token
-
-#             return Response({"message": "Logged out successfully"}, status=status.HTTP_204_NO_CONTENT)
-#         except Exception as e:
-#             return Response({"error": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST)
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -78,6 +9,13 @@ from django.contrib.auth import get_user_model
 from .models import UserLog  # Import the UserLog model
 from django.contrib.auth import authenticate
 from django.middleware import csrf
+from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
+from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
+from allauth.socialaccount.providers.oauth2.client import OAuth2Client
+from dj_rest_auth.registration.views import SocialLoginView
+from django.conf import settings
+from allauth.account.models import EmailConfirmation  # Import EmailConfirmation
+
 User = get_user_model()  # Fetch user model efficiently
 
 
@@ -91,7 +29,6 @@ def log_user_action(user, action, request):
     )
 
     return "logging created"
-
 
 
 def get_client_ip(request):
@@ -113,7 +50,7 @@ class RegisterAPIView(APIView):
         try:
             serializer = self.serializer_class(data=request.data)
             serializer.is_valid(raise_exception=True)
-            user = serializer.save()
+            user = serializer.save(registration_type="email")
 
             user_data = {
                 "id": user.id,
@@ -127,14 +64,6 @@ class RegisterAPIView(APIView):
         except ValidationError as e:
             return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth import get_user_model
-from django.core.cache import cache
-
-User = get_user_model()
 
 class LoginAPIView(APIView):
     def post(self, request):
@@ -186,12 +115,7 @@ class LoginAPIView(APIView):
             return response
 
         return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
-from rest_framework_simplejwt.tokens import RefreshToken
-from django.core.cache import cache
+
 
 class LogoutAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -248,3 +172,40 @@ class UserProfileAPIView(APIView):
             "name": user.name,
         }
         return Response(user_data, status=status.HTTP_200_OK)
+
+
+class GoogleLoginView(SocialLoginView):
+    adapter_class = GoogleOAuth2Adapter
+    callback_url = settings.GOOGLE_CALLBACK_URL
+    client_class = OAuth2Client
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        user = request.user
+        user.registration_type = "google"
+        user.save(update_fields=["registration_type"])
+        return response
+
+
+class GitHubLoginView(SocialLoginView):
+    adapter_class = GitHubOAuth2Adapter
+    callback_url = settings.GITHUB_CALLBACK_URL
+    client_class = OAuth2Client
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        user = request.user
+        user.registration_type = "github"
+        user.save(update_fields=["registration_type"])
+        return response
+
+
+class EmailVerificationView(APIView):
+    def get(self, request, key):
+        try:
+            confirmation = EmailConfirmation.objects.get(key=key)
+            confirmation.confirm(request)
+            return Response({'message': 'Email verified successfully'})
+        except EmailConfirmation.DoesNotExist:
+            return Response(
+                {'error': 'Invalid verification key'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
